@@ -1,0 +1,138 @@
+﻿@using Microsoft.AspNet.Identity
+@using Microsoft.AspNet.Identity.Owin
+@using ZPM.NetDb.Models
+
+<!--
+x@inject SignInManager<ApplicationUser>SignInManager
+x@inject UserManager<ApplicationUser>UserManager
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ZPM.Net Demo</title>
+
+    <link rel="stylesheet" href="~/Content/themes/base/jquery-ui.css"/>
+    <link rel="stylesheet" href="~/Content/css/site.css" />
+    <link rel="stylesheet" href="~/Content/css/zpm.css" />
+    <link rel="stylesheet" href="~/Content/themes/base/jquery-ui.css"/>
+    <link rel="stylesheet" href="/Content/css/zpm.css" />
+
+    <link href='~/scripts/smartmenus/css/sm-core-css.css' rel="stylesheet" type="text/css" />
+    <link href='~/scripts/smartmenus/css/sm-blue/sm-blue.css' rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        .sectionDivider {
+            width: 100%;
+            height: 6px;
+            background-color: #d8d8d8;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #main-menu, .sm-blue a {
+            background: #4b6c9e;
+            background-image: linear-gradient(to bottom, #4b6c9e, #4b6c9e);
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container body-content">
+        <nav role="navigation" style="padding:2px 0px;">
+            <ul id="main-menu" class="sm sm-blue" style="width:100%; z-index:99;">
+                <li>@Html.ActionLink("Main", "Index", "Home")</li>
+                <li>
+                    <a href="#">Customers</a>
+                    <ul>
+                        <li>@Html.ActionLink("Customers", "CustomerView", "Customer")</li>
+                        <!--<li>@Html.ActionLink("Customers 2", "Customer2View", "Customer2")</li>-->
+                        <li>@Html.ActionLink("Customer Categories", "CustomerCategoryView", "CustomerCategory")</li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">Reports</a>
+                    <ul>
+                        <li>@Html.ActionLink("Customer Reports", "CustomerReports", "CustomerReports")</li>
+                        <!--<li>@Html.ActionLink("Customer 2 Reports", "Customer2Reports", "Customer2Reports")</li>-->
+                        <li>@Html.ActionLink("Customer Category Reports", "CustomerCategoryReports", "CustomerCategoryReports")</li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">Help</a>
+                    <ul>
+                        <li>@Html.ActionLink("About", "About", "Home")</li>
+                    </ul>
+                </li>
+                <li style="float:right">
+                    @if (Request.IsAuthenticated)
+                {
+                    <a href="#">@User.Identity.GetUserName()</a>
+                    <ul>
+                        <li>
+                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ActionLink("Account", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+                            <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+                    }
+                        </li>
+                    </ul>
+            }
+            else
+            {
+                @Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })
+        }
+                </li>
+            </ul>
+        </nav>
+        @RenderBody()
+        <hr />
+        <footer>
+            &copy; 2018, ZPM Software Inc &nbsp; @Html.ActionLink("copyright notice", "About", "Home")
+        </footer>
+    </div>
+
+    <environment include="Development">
+        <script src="~/Scripts/jquery-3.3.1.js" asp-append-version="true"></script>
+        <script src="~/Scripts/jquery-ui-2.12.1.js" asp-append-version="true"></script>
+        <script src="~/Scripts/bootstrap.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/Scripts/jquery-3.3.1.js"  asp-append-version="true"
+                asp-fallback-src="~/Scripts/jquery-3.2.1.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>  <!-- https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.2.1.js -->
+        <script src="~/Scripts/jquery-ui-1.12.1.js" asp-append-version="true"></script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js" asp-append-version="true"
+                asp-fallback-src="~/Scripts/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+    </environment>
+
+    <script type="text/javascript" src='~/Scripts/smartmenus/jquery.smartmenus.js' asp-append-version="true"></script>
+    <script type="text/javascript">
+        $('#main-menu').smartmenus({ subMenusMaxWidth: "30em" }); //activate smartmenus
+        $('#main-menu').bind('click.smapi', function (e, menu) { return (menu == null || menu.className != "has-submenu highlighted"); }); // ignore click on items with sub menus
+
+        setInterval(function () {
+            $.ajax({
+                type: "POST",
+                url: "/Zpm/KeepSessionAlive",
+                data: JSON.stringify({ dateTime: new Date().toLocaleString() }), // send time to bypass cache
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function () { }
+            });
+        }, 300000); // every 5 min
+    </script>
+    <script src="~/Scripts/zpm.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

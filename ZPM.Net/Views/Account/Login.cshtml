@@ -1,0 +1,114 @@
+﻿@using ZPM.Net.Models
+@model LoginViewModel
+@{
+    Layout = "";
+    ViewBag.Title = "ZPM.Net LOGIN";
+}
+
+<head>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/Content/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="~/Content/css/site.css" />
+        <link rel="stylesheet" href="~/Content/css/zpm.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/Content/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="~/Content/site.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="/Content/css/zpm.css" />
+    </environment>
+    <environment include="Development">
+        <script src="~/Scripts/jquery-3.3.1.js"></script>
+        <script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+        <script src="~/Scripts/bootstrap.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/Scripts/jquery-3.3.1.js"
+                asp-fallback-src="~/Scripts/jquery-3.3.1.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>  <!-- https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.js -->
+        <script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/Scripts/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+    </environment>
+
+    <style type="text/css">
+        body {
+            width: 600px;
+            margin: 0 auto;
+        }
+
+        td {
+            padding: 4px 10px 5px 6px;
+        }
+
+        #titlebar {
+            font-size: 2em;
+            background-color: #4b6c9e;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+            margin-top: 5px;
+        }
+    </style>
+
+
+    @Scripts.Render("~/bundles/jqueryval");
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            document.title = "Voter DB Login";
+        });
+    </script>
+</head>
+
+<body>
+    <div class="body-content">
+        <div id="titlebar">@ViewBag.Title</div>
+        <div class="col-md-8">
+            <section id="loginForm">
+                @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <hr />
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <table>
+                        <tr>
+                            <td>@Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })</td>
+                            <td>@Html.TextBoxFor(m => m.Email, new { @class = "form-control" })</td>
+                            <td>@Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })</td>
+                        </tr>
+                        <tr>
+                            <td>@Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })</td>
+                            <td>@Html.PasswordFor(m => m.Password, new { @class = "form-control" })</td>
+                            <td>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                @Html.CheckBoxFor(m => m.RememberMe)
+                                @Html.LabelFor(m => m.RememberMe)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><input type="submit" value="Log in" class="btn btn-default" style="font-size:1.1em;" /></td>
+                            <td>@Html.ActionLink("Register as a new user", "Register")</td>
+                        </tr>
+                    </table>
+
+                    @* Enable this once you have account confirmation enabled for password reset functionality
+                        <p>
+                            @Html.ActionLink("Forgot your password?", "ForgotPassword")
+                        </p>*@
+                }
+            </section>
+        </div>
+    </div>
+</body>

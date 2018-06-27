@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<style type="text/css">
+    .section { font-size: 1.2em; font-weight: bold; }
+    ul { margin: 5px 0 10px 0; }
+    li { margin: 0 0 5px 0; }
+    h1 {margin: 5px 0 0 0;}
+</style>
+
+<div style="width:700px; margin: 0 100px;">
+    <h1>ZPM.NET</h1>
+    <p>
+        ZPM.Net is an <b>open source</b> web business application framework with server and client side framework optimized for web business applications.
+        It is intended as a staring point for developing feature rich business applications, but components can be broken out and modified to work with existing applications.
+    </p>
+
+    <div class="section">User Interface</div>
+    <p>
+        The user interface design for this demo is targeted towards the business user who spends many hours a day in the application.
+        Such users demand that the interface be as efficient as possible, willing to sacrifice white space and accept terse prompts
+        in exchange for less navigation to additional pages than the UI design for a typical web user.
+    </p>
+    <p>
+        ZPM.Net framework is not tied to a specific UI style, with the exception of the DataView list.  Customizing ZPM.Net to any UI design should not be a difficult task.
+    </p>
+
+    <div class="section">ZPM.Net components:</div>
+    <ul>
+        <li>
+            <b>Zpm.DataView</b> - An easy to use interface incorporating all CRUD operations on a single page (Create/read/update/delete).
+            Users pick table record from a scrolling list of records for a table.
+            For large tables, greater than a few thousnd records, some type of filtering must be employed.
+        </li>
+        <li>
+            <b>Zpm.ReportBuilder</b> - Allows the end user to build and save customer reports based on a table or view.
+            Includes selecting columns, sorting order, and advanced filtering with output to screen, excel or pdf.
+        </li>
+        <li>
+            <b>Zpm.FixedHeading</b> - Fixed table headings should be a standard feature of HTML tables, but is is not.
+            This module turns a normal html table with &lt:th&gt; headings into a table where the heading is fixed and the data rows scroll.
+        </li>
+        <li>
+            <b>Zpm.TableSort</b> - Sort html table rows by clicking on a heading cell. Supports date, numeric and the ability to sort on multiple columns.
+        </li>
+    </ul>
+
+    <div class="section">ZPM.Net Customization</div>
+    <ul>
+        <li>
+            <b>Dependency Injection</b> - ZPM.Net utilizes dependency injection to allow easy customization of framework methods.
+        </li>
+        <li>
+            <b>Javascript Prototypes </b> - ZPM.Net javascript classes utilize prototypes, allowing extensions to classes and methods.
+        </li>
+    </ul>
+
+    <div class="section">Future Planned Enhancements:</div>
+    <ul>
+        <li>
+            <b>Manage AspNetUsers</b> - Page to maintain AspNetUsers using Zpm.DataView.
+        </li>
+        <li>
+            <b>Zpm.DataView Security</b> - Page and field level security to hide, view and change fields based on user roles.
+        </li>
+        <li>
+            <b>Zpm.DataView Change Log</b> - Track changes at the fields level, showing a history of who made the change, date and time of the change.
+        </li>
+    </ul>
+
+</div>

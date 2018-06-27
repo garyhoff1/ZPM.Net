@@ -1,0 +1,123 @@
+﻿/* zpm.dataview.css */
+
+.zpm-dv-list {
+    margin: 0px 6px 6px 0px;
+    height:100%;
+    float: left;
+    border: 1px solid black;
+}
+
+.zpm-dv-tbl {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: block;
+    border-collapse: collapse;
+    border: none;
+    outline: none;
+}
+
+.zpm-dv-tbl tr:hover {
+    cursor: pointer;
+    color: #1d60ff;
+}
+
+.zpm-dv-tbl td {
+    border: none;
+}
+
+.zpm-dv-tbl th {
+    border: none;
+    background: #4b6c9e; 
+    color: white; 
+    padding: 2px 0;
+}
+
+.zpm-dv-add-button {
+    height: 21px;
+    width: 21px;
+    display: inline;
+    position: absolute;
+    cursor: pointer;
+}
+
+.selected-row {
+    background: rgb(202,228,255);
+}
+
+.zpm-dv-panel {
+    position: relative;
+    padding: 0 5px;
+    margin: 0;
+    position: relative;
+    height:100%;
+    border: 1px solid black;
+}
+
+.zpm-dv-panel-title {
+    text-align:center; 
+    font-size:1.5em; 
+    font-weight:bold;
+}
+
+.zpm-dv-control-panel {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.zpm-dv-control-panel input:disabled {
+    background: #bbb;
+}
+
+.zpm-dv-control-panel-message {
+    color: red;
+    margin-bottom: 2px;
+}
+
+.zpm-dv-control-panel-save {
+    min-width: 80px;
+    margin: 0 10px 0 0;
+}
+
+.zpm-dv-control-panel-delete {
+    min-width: 80px;
+    margin: 0 10px;
+}
+
+.zpm-dv-control-panel-cancel {
+    min-width: 80px;
+    margin: 0 10px;
+}
+
+
+.zpm-dv-disabled {
+    background: darkgray !important;
+}
+
+.zpm-dv-error {
+    border-color: red !important;
+    color: red !important;
+}
+
+.zpm-dv-td-prompt {
+    background-color: #C9E3FE;
+    padding: 3px 5px 0 5px;
+    vertical-align:auto;
+}
+
+.zpm-dv-td-pad {
+    background-color: #C9E3FE;
+    height: 10px;
+}
+
+.zpm-dv-filter-div {
+    background:#ddd; 
+    padding-left:5px;
+}
+
+.zpm-dv-filter {
+    margin-top: 1px;
+}
+

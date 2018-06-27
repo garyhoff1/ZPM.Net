@@ -1,0 +1,121 @@
+﻿@model List<ZPM.NetDb.Models.Customer>
+@using Helpers
+@using ZPM.Net.Controllers
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Options.Title = "Customer View"; // for page tab title
+    ViewBag.Options.ModelName = "Customer"; // for for element names. must not have spaces.
+    ViewBag.Options.ModelTextName = "Customer"; // for page display. may have spaces.
+    ViewBag.Options.Height = 500;  // pixel height of the list and panel sections
+    ViewBag.Options.ListWidth = 350; // pixel width of the list section
+    ViewBag.Options.PanelWidth = 530;  // pixel width of the panel section
+    ViewBag.Options.GetModel = "/Customer/GetModel";
+    ViewBag.Options.AddModel = "/Customer/AddModel";
+    ViewBag.Options.SaveModel = "/Customer/SaveModel";
+    ViewBag.Options.DeleteModel = "/Customer/DeleteModel";
+    ViewBag.Options.FocusOnChange = "CustomerName";
+    ViewBag.Options.FocusOnAdd = "CustomerName";
+}
+
+
+<link rel="stylesheet" href="~/Content/css/zpm.dataview.css" />
+<style type="text/css">
+    .zpm-dv-tbl td {padding:2px 0 0px 4px;}
+    .last-col {width:100%;}
+    .customer-name {min-width:200px;}
+</style>
+
+<div id="@(ViewBag.Options.ModelName)View" style="display:inline-block; margin-top:2px; height: @(ViewBag.Options.Height)px;">
+    <div id="@(ViewBag.Options.ModelName)List" class="zpm-dv-list">
+        @Html.DataView_Filter((DataViewOptions)ViewBag.Options)
+        @Html.DataView_AddButton((DataViewOptions)ViewBag.Options)
+        <table border="1" class="zpm-dv-tbl zpm-fixed-heading" style="height:@(ViewBag.Options.ListTableHeight)px; width:@(ViewBag.Options.ListWidth)px;"
+               onkeydown="dv.KeyPress(this, event)">
+            <thead>
+                <tr>
+                    <th onclick="zpm.TableSort(this);">Customer Name</th>
+                    <th onclick="zpm.TableSort(this);">City</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr id='ID@{@item.CustomerId}' onclick="dv.RowClicked(this);">
+                    <td class="customer-name">@item.CustomerName</td>
+                    <td class="last-col">@item.City</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="zpm-dv-panel" style="width:@(ViewBag.Options.PanelWidth)px; margin-left: @(ViewBag.Options.ListWidth+8)px;">
+        <div class="zpm-dv-panel-title">@(ViewBag.Options.ModelTextName) Setup</div>
+        <div id="@(ViewBag.Options.ModelName)Panel" class="zpm-dv-data-panel" style="display:none;">
+            <input id="CustomerId" type="hidden" class="df-getset df-id" data-type="integer" />
+            <table>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Customer Name</td>
+                    <td><input id="CustomerName" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Address</td>
+                    <td><input id="Address" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">City</td>
+                    <td><input id="City" type="text" class="df-getset" maxlength='30' style="width:220px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">State</td>
+                    <td>@Html.ZpmSelectState("State", new { @class = "df-getset" })</td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Zip Code</td>
+                    <td><input id="ZipCode" type="text" class="df-getset" maxlength='12' style="width:100px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Phone Number</td>
+                    <td><input id="PhoneNumber" type="text" class="df-getset" maxlength='20' style="width:160px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">E-Mail Address</td>
+                    <td><input id="Email" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Customer Category</td>
+                    <td>@Html.CustomerCategorySelect("CustomerCategoryId", new { @style = "padding:1px 2px", @class = "df-getset" })</td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Credit Limit</td>
+                    <td><input id="CreditLimit" type="text" class="df-getset" maxlength='18' style="width:80px;" data-type="numeric" data-decimals="2" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Review Date</td>
+                    <td><input id="ReviewDate" type="text" class="df-getset" style="width:80px;" data-type="date" /></td>
+                </tr>
+            </table>
+            @Html.DataView_ControlPanel((DataViewOptions)ViewBag.Options)
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src='~/Scripts/zpm.dataview.js'></script>
+    <script type="text/javascript">
+        var dv;
+
+        $(document).ready(function () {
+            dv = @Html.DataView_NewDataView((DataViewOptions)ViewBag.Options);
+            dv.ListRowHtml = function (model) {
+                return "<tr id='ID" + model.CustomerId + "' onclick='dv.RowClicked(this);'>" +
+                    "<td>" + model.CustomerName + "</td>" +
+                    "<td>" + model.City + "</td>" +
+                    "</tr> ";
+            };
+          });
+    </script>
+}
+
+
+
+

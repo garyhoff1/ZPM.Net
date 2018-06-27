@@ -1,0 +1,83 @@
+﻿@model List<ZPM.NetDb.Models.CustomerCategory>
+@using Helpers
+@using ZPM.Net.Controllers
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Options.Title = "Customer Category View"; // for page tab title
+    ViewBag.Options.ModelName = "CustomerCategory"; // for for element names. must not have spaces.
+    ViewBag.Options.ModelTextName = "Customer Category"; // for page display. may have spaces.
+    ViewBag.Options.Height = 500;  // pixel height of the list and panel sections
+    ViewBag.Options.ListWidth = 220; // pixel width of the list section
+    ViewBag.Options.PanelWidth = 630;  // pixel width of the panel section
+    ViewBag.Options.GetModel = "/CustomerCategory/GetModel";
+    ViewBag.Options.AddModel = "/CustomerCategory/AddModel";
+    ViewBag.Options.SaveModel = "/CustomerCategory/SaveModel";
+    ViewBag.Options.DeleteModel = "/CustomerCategory/DeleteModel";
+    ViewBag.Options.FocusOnChange = "Description";
+    ViewBag.Options.FocusOnAdd = "Description";
+}
+
+
+<link rel="stylesheet" href="~/Content/css/zpm.dataview.css" />
+<style type="text/css">
+    .zpm-dv-tbl td { width: 300px; }
+    .zpm-dv-panel-title { margin-bottom:20px; }
+</style>
+
+<div id="@(ViewBag.Options.ModelName)View" style="display:inline-block; margin-top:2px; height: @(ViewBag.Options.Height)px;">
+    <div id="@(ViewBag.Options.ModelName)List" class="zpm-dv-list">
+        @Html.DataView_Filter((DataViewOptions)ViewBag.Options)
+        @Html.DataView_AddButton((DataViewOptions)ViewBag.Options)
+        <table border="1" class="zpm-dv-tbl zpm-fixed-heading" style="height:@(ViewBag.Options.ListTableHeight)px; width:@(ViewBag.Options.ListWidth)px;"
+               onkeydown="dv.KeyPress(this, event)">
+            <thead>
+                <tr>
+                    <th onclick="zpm.TableSort(this);"><div>County Name</div></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+            {
+                <tr id='ID@{@item.CustomerCategoryId}' onclick="dv.RowClicked(this);">
+                    <td>@item.Description</td>
+                </tr>
+        }
+            </tbody>
+        </table>
+    </div>
+    <div class="zpm-dv-panel" style="width:@(ViewBag.Options.PanelWidth)px; margin-left: @(ViewBag.Options.ListWidth+8)px;">
+        <div class="zpm-dv-panel-title">@(ViewBag.Options.ModelTextName) Setup</div>
+        <div id="@(ViewBag.Options.ModelName)Panel" class="zpm-dv-data-panel" style="display:none;">
+            <input id="CustomerCategoryId" type="hidden" class="df-getset df-id" data-type="integer" />
+            <table>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Category Description</td>
+                    <td><input id="Description" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                </tr>
+            </table>
+            @Html.DataView_ControlPanel((DataViewOptions)ViewBag.Options)
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src='~/Scripts/zpm.dataview.js'></script>
+    <script type="text/javascript">
+        var dv;
+
+        $(document).ready(function () {
+            //zpm.FixedHeading($('.zpm-fixed-heading')); // create fixed heading elments
+            //zpm.FixedHeadingAlign($('.zpm-fixed-heading'));
+            dv = @Html.DataView_NewDataView((DataViewOptions)ViewBag.Options);
+            dv.ListRowHtml = function (model) {
+                return "<tr id='ID" + model.CustomerCategoryId + "' onclick='dv.RowClicked(this);'>" +
+                    "<td>" + model.Description + "</td>" +
+                    "</tr> ";
+            };
+          });
+    </script>
+}
+
+
+
+

@@ -1,0 +1,99 @@
+﻿/* zpm Report Builder
+*/
+
+.zpm-box-title {
+    position: absolute;
+    margin-top: -14px;
+    display: inline;
+    background: white;
+    padding: 0 3px;
+    font-style: italic;
+    font-size: .9em;
+}
+
+.zpm-filter-date-relative {
+    display: inline;
+}
+
+.zpm-filter-comment {
+    color: #777;
+    padding-left: 10px !important;
+    font-size: .9em;
+}
+
+.zpm-filter-not {
+    width: 48px;
+    display: inline;
+}
+
+.zpm-filter-and-or {
+    width: 28px;
+    text-decoration: underline;
+    color: blue;
+    text-align: center;
+}
+
+.zpm-filter-and-or a {
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.zpm-filter-open-paren, .zpm-filter-close-paren {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-top: -2px;
+    min-width: 7px;
+}
+
+.zpm-filter-details {
+    min-width: 675px;
+}
+
+.zpm-filter-text {
+    width: 551px;
+}
+
+.zpm-filter-menu {
+    vertical-align: sub;
+    cursor: pointer;
+}
+
+#ZpmFilterMenu {background-color:#f8f8f8; color:black; width:100%;}
+
+#ZpmFilterMenuUl {
+    margin: 0;
+    padding: 0 0 0 10px;
+    cursor: pointer;
+}
+
+#ZpmFilterMenuUl li:hover {
+    background: rgb(202,228,255);
+}
+
+.zpm-filter {
+    min-width: 220px;
+}
+
+.ui-dialog .ui-dialog-title { font-size: 1.4em; text-align: center; }
+.ui-dialog .ui-dialog-buttonpane { text-align: center; }
+.ui-dialog .ui-dialog-buttonpane button { width: 70px; }
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { float: none; margin-left: 19px; }
+
+.report-options-table { display: inline; vertical-align: top; margin-right: 10px; }
+.report-options-table td { padding: 1px 5px 1px 0; }
+.option-button { margin-bottom: 4px; width: 100px; padding: 2px 0; }
+
+.chosen-results li { font-size: 13px; }
+.chosen-container.chosen-with-drop .chosen-drop { left: 0; display: block; }
+.chosen-container .chosen-drop { display: none; }
+.chosen-container-multi .chosen-choices li.search-choice { margin: 2px 0 1px 1px; padding: 1px 20px 1px 3px; }
+
+.chosen-container-multi .chosen-choices li.search-choice .search-choice-close { top: 2px; }
+.chosen-container-multi .chosen-choices li.search-field input[type='text'] { padding: 4px 0 0 3px; height: 18px; }
+
+.report-output-button { margin-left: 10px; }
+
+.display-none .ui-dialog-titlebar { display: none; }
+
+.zpm-filter-div-options { border: 1px solid #ccc; padding: 7px 3px 2px 5px; margin: 8px 0 6px 0; }
+

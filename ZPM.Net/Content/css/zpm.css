@@ -1,0 +1,11 @@
+﻿/* zpm.css */
+
+.zpm-field-changed {
+    background: yellow !important;
+}
+
+/* --- Fixed Heading --- */
+.zpm-fixed-heading { overflow: auto; border-collapse:collapse; display:block; }
+.zpm-fixed-heading th div { position: absolute; }
+
+

@@ -1,0 +1,101 @@
+﻿@model List<ZPM.NetDb.Models.Setting> /* %% replace Setting with model name */
+@using Helpers
+@using ZPM.Net.Controllers
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //%% all these need changing. Change /Template/ to /[controllerName]/
+
+    ViewBag.Options.Title = "Setting View"; // for page tab title
+    ViewBag.Options.ModelName = "Setting"; // for for element names. must not have spaces.
+    ViewBag.Options.ModelTextName = "Setting Values"; // for page display. may have spaces.
+    ViewBag.Options.Height = 500;  // pixel height of the list and panel sections
+    ViewBag.Options.ListWidth = 220; // pixel width of the list section
+    ViewBag.Options.PanelWidth = 630;  // pixel width of the panel section
+    ViewBag.Options.GetModel = "/Template/GetModel";
+    ViewBag.Options.AddModel = "/Template/AddModel";
+    ViewBag.Options.SaveModel = "/Template/SaveModel";
+    ViewBag.Options.DeleteModel = "/Template/DeleteModel";
+    ViewBag.Options.FocusOnChange = "Value";
+    ViewBag.Options.FocusOnAdd = "Value";
+
+    /*%% replace all:
+     * for these changes, be sure to saerch with match case and whole word!!
+     * SettingId with the primary id field for this table
+     * Value with first data field, usually Name or Description.
+    */
+}
+
+
+<link rel="stylesheet" href="~/Content/css/zpm.dataview.css" />
+<style type="text/css">
+    .zpm-dv-tbl td {
+        width: 300px; /* width of the left side table - one with list of records */
+    }
+
+    .zpm-dv-panel-title {
+        margin-bottom: 20px;
+    }
+</style>
+
+<div id="@(ViewBag.Options.ModelName)View" style="display:inline-block; margin-top:2px; height: @(ViewBag.Options.Height)px;">
+    <div id="@(ViewBag.Options.ModelName)List" class="zpm-dv-list">
+        @Html.DataView_Filter((DataViewOptions)ViewBag.Options)
+        @Html.DataView_AddButton((DataViewOptions)ViewBag.Options)
+        <table border="1" class="zpm-dv-tbl zpm-fixed-heading" style="height:@(ViewBag.Options.ListTableHeight)px; width:@(ViewBag.Options.ListWidth)px;"
+               onkeydown="dv.KeyPress(this, event)">
+            <thead>
+                <tr>
+                    <th onclick="zpm.TableSort(this);">Value</th>
+                    <!--%% if multiple columns in record list, add heading columns here -->
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr id='ID@{@item.SettingId}' onclick="dv.RowClicked(this);">
+                    <td>@item.Value</td>
+                    <!--%% if multiple columns in record list, add data columns here -->
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="zpm-dv-panel" style="width:@(ViewBag.Options.PanelWidth)px; margin-left: @(ViewBag.Options.ListWidth+8)px;">
+        <div class="zpm-dv-panel-title">@(ViewBag.Options.ModelTextName) Setup</div>
+        <div id="@(ViewBag.Options.ModelName)Panel" class="zpm-dv-data-panel" style="display:none;">
+            <input id="SettingId" type="hidden" class="df-getset df-id" data-type="integer" />
+            <table>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Setting Value</td>
+                    <td><input id="Value" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                </tr>
+                <!--%% add additional rows for each field to be edited in the table -->
+            </table>
+            @Html.DataView_ControlPanel((DataViewOptions)ViewBag.Options)
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src='~/Scripts/zpm.dataview.js'></script>
+    <script type="text/javascript">
+        var dv;
+
+        $(document).ready(function () {
+            //%% if multiple columns in record list, add data columns here
+            dv = @Html.DataView_NewDataView((DataViewOptions)ViewBag.Options);
+            dv.ListRowHtml = function (model) {
+                return "<tr id='ID" + model.SettingId + "' onclick='dv.RowClicked(this);'>" +
+                    "<td>" + model.Value + "</td>" +
+                    "</tr> ";
+            };
+          });
+    </script>
+}
+
+
+
+
+
+

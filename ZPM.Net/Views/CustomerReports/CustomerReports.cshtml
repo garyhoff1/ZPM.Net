@@ -1,0 +1,185 @@
+﻿@using ZPM.Net.Controllers
+@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "CustomerReports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href='~/Content/css/chosen.css' rel="stylesheet" type="text/css" />
+<link href='~/Content/css/ui.multiselect.css' rel="stylesheet" type="text/css" />
+<link href='~/Content/css/zpm.reportbuilder.css' rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+    .report-output {
+        width: 100%;
+        border: 1px solid #777;
+        margin-top: 10px;
+    }
+
+        .report-output th {
+            background: #4b6c9e;
+            color: white;
+            padding: 3px 0;
+        }
+
+        .report-output td {
+            padding: 0 3px;
+            border: 1px solid #777;
+        }
+
+    .col-unit {
+        max-width: 80px;
+    }
+
+    .col-unit-nbr {
+        max-width: 70px;
+    }
+
+    .col-center {
+        text-align: center;
+    }
+
+    .chosen-container.chosen-with-drop .chosen-drop {
+        left: 0;
+        display: block;
+    }
+
+    hr {
+        height: 1px;
+        border-style: solid;
+        border-width: 1px 0 0 0;
+        border-color: #ccc;
+        width: 98%;
+    }
+</style>
+
+@section Scripts {
+    <script type="text/javascript" src='~/Scripts/chosen.jquery.js'></script>
+    <script type="text/javascript" src='~/Scripts/ui.multiselect.js'></script>
+    <script type="text/javascript" src='~/Scripts/zpm.reportbuilder.js'></script>
+
+    <script type="text/javascript">
+        var rb; // ZpmReportBuilder
+        var savedReports = null;
+
+        $(document).ready(function () {
+            rb = new ZpmReportBuilder('#ReportOutput', '/CustomerReports');
+            rb.CreatedByMe = function (report) {
+                return (report.CreatedByUserId == @(User.Identity.GetUserId<int>()) )
+            }
+
+            rb.ReportNameChanged = function () { // example of overriding a report builder method
+                ZpmReportBuilder.prototype.ReportNameChanged.call(rb);
+                switch (this.$reportName.val()) {
+                    case '': break;
+                    case '+': break;
+                    default: break;
+                }
+            };
+            rb.GetReports(); // load report selections
+        });
+    </script>
+}
+
+<div id="Main" style="display:none">
+    <div style="width:100%; text-align:center; font-size:18px; font-weight:bold">Customer Reports</div>
+    <div style="margin:5px 0 0 4px;">
+        Report Name
+        <select id="ReportName" style="width:250px;" onchange="rb.ReportNameChanged()">
+            <option value="">&lt;select a report&gt;</option>
+            <option value="+">&lt;new report&gt;</option>
+        </select>
+        <button onclick="rb.RunReportToScreen()" class="report-output-button">Output to screen</button>
+        <button onclick="rb.RunReportToExcel()" class="report-output-button">Output to Excel</button>
+        <button onclick="rb.RunReportToPdf()" class="report-output-button">Output to PDF</button>
+        <a id="ShowOptions" href="#" onclick="rb.ToggleOptions()" style="float:right; padding:4px 20px 0 0;">Show options</a>
+        <br /><div id="ReportDescription" style="padding: 3px 0 0 82px; font-style:italic; font-size:1.1em"></div>
+    </div>
+    <div id="FilterOptions">
+        <select class="zpm-filter-select" onchange="rb.FilterOptionChanged(this)">
+            <option value=""></option>
+            <option value="CustomerName" data-filter-name="zpm-filter-condition-string">Customer Name</option>
+            <option value="Address" data-filter-name="zpm-filter-condition-string">Address</option>
+            <option value="City" data-filter-name="zpm-filter-condition-string">City</option>
+            <option value="State" data-filter-name="zpm-filter-condition-string">State</option>
+            <option value="ZipCode" data-filter-name="zpm-filter-condition-string">Zip Code</option>
+            <option value="PhoneNumber" data-filter-name="zpm-filter-condition-string">Phone Number</option>
+            <option value="Email" data-filter-name="zpm-filter-condition-string">Email</option>
+            <option value="CreatedDttm" data-filter-name="zpm-filter-condition-date">Created Date</option>
+            <option value="ChangedDttm" data-filter-name="zpm-filter-condition-date">Changed Date</option>
+            <option value="CustomerCategory" data-filter-name="zpm-filter-condition-string">Customer Category</option>
+        </select>
+    </div>
+    <div id="ReportOptions" style="padding:2px 5px 0 5px;">
+        <div class='zpm-filter-div-options'>
+            <div class="zpm-box-title">Report Layout</div>
+            <table class="report-options-table">
+                <tr>
+                    <td class="td-prompt" style="text-align:center;">
+                        <button id="btnChooseColumns" type="button" onclick="rb.ChooseColumns(rb.report)" style="margin:0; width:130px; padding:2px 0;">Choose Columns</button>
+                    </td>
+                    <td id="reportColumnList" style="width:800px"></td>
+                </tr>
+                <tr>
+                    <td style="text-align:center; font-size:1.1em">Order report by</td>
+                    <td>
+                        <select id="OrderBy" class="chosen-select chosen-filter" style="width:552px;" multiple="" data-placeholder=" "></select>
+                        <span style="padding-left:10px">
+                            PDF Output: <input id="PdfPortrait" type="radio" name="PdfOrientation" value="P" />Portrait
+                            &nbsp; <input id="PdfLandscape" type="radio" name="PdfOrientation" value="L" />Landscape
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <table class="report-options-table" style="float:right; margin-top:-3px">
+                <tr>
+                    <td>
+                        <button id="btnSaveReport" type="button" class="option-button" onclick="rb.SaveReportDialog()">Save/Delete</button>
+                        <button id="btnClearOptions" type="button" class="option-button" onclick="rb.ClearOptions(true)">Clear Options</button><br />
+                        <button id="btnMakeDefault" type="button" class="option-button" onclick="rb.SetReportDefault('set')" title="Make this report my default">Make Default</button>
+                        <button id="btnClearDefault" type="button" class="option-button" onclick="rb.SetReportDefault('clear')" title="Clear my report default">Clear Default</button><br />
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class='zpm-filter-div-options' style="margin-top:11px">
+            <div class="zpm-box-title">Search Criteria</div>
+            <table id="zpmFilterTable" class="report-options-table"></table>
+        </div>
+    </div>
+    <div id="Message" style="color:red; margin-top:3px;"></div>
+
+    <table id="ReportOutput" class="zpm-fixed-heading report-output" style="margin-top:5px">
+        <thead>
+            <tr>
+                <th id="CustomerName">Customer Name</th>
+                <th id="Address">Address</th>
+                <th id="City"><div style="text-align:center">City</div></th>
+                <th id="State"><div style="text-align:center">State</div></th>
+                <th id="ZipCode"><div style="text-align:center">Zip Code</div></th>
+                <th id="PhoneNumber">Phone Number</th>
+                <th id="Email">E-Mail</th>
+                <th id="CustomerCategory"><div style="min-width:100px">Customer Category</div></th>
+                <th id="CreatedDttm">Created Date</th>
+                <th id="ChangedDttm">Changed Date</th>
+                <th id="blank">Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{CustomerName}</td>
+                <td>{Address}</td>
+                <td>{City}</td>
+                <td style="text-align:center">{State}</td>
+                <td>{ZipCode}</td>
+                <td>{PhoneNumber}</td>
+                <td>{Email}</td>
+                <td>{CustomerCategory}</td>
+                <td>{CreatedDttm}</td>
+                <td>{ChangedDttm}</td>
+                <td>{blank}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
