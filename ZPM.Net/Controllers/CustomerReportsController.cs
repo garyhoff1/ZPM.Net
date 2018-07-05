@@ -65,7 +65,11 @@ namespace ZPM.Net.Controllers
                 case "State":
                 case "CreatedDttm":
                 case "ChangedDttm":
+                case "Statement":
                     PdfTableColumnAdd(table, columnWidth, ParagraphAlignment.Center);
+                    break;
+                case "CreditLimit":
+                    PdfTableColumnAdd(table, columnWidth, ParagraphAlignment.Right);
                     break;
                 default:
                     PdfTableColumnAdd(table, columnWidth, ParagraphAlignment.Left);

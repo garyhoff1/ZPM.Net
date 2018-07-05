@@ -61,7 +61,7 @@ Zpm.prototype.GetInteger = function (i) { // assumes IsNumeric is true
     return parseInt(i);  // integer
 };
 
-Zpm.prototype.GetNumeric = function (n, decimals) { // assumes IsNumeric is true
+Zpm.prototype.GetNumber = function (n, decimals) { // assumes IsNumeric is true
     if (n == null || n == '') return 0;
     if (isNaN(n)) return null;
     num = parseFloat(n);  // numeric

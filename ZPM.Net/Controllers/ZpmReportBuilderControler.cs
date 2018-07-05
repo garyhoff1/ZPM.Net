@@ -54,6 +54,11 @@ namespace ZPM.Net.Controllers
             MaxBrowserRows = maxBrowserRows;
         }
 
+        protected virtual string BoolToString(bool value)
+        {
+            return (value) ? "YES" : "";
+        }
+
         protected ActionResult GetReports(int selectedReportId)
         {
             var userId = User.Identity.GetUserId<int>().ToString();
@@ -359,10 +364,20 @@ namespace ZPM.Net.Controllers
                         {
                             for (int i = 0; i < parms.ColumnNames.Length; i++)
                             {
-                                if (reader[i].GetType() == typeof(DateTime))
-                                    row.Append(((DateTime)reader[i]).ToString("MM/dd/yyyy") + "\t"); // tab delimited fields
-                                else
-                                    row.Append(reader[i].ToString().Replace('\t', ' ') + "\t"); // tab delimited fields
+                                switch (reader[i].GetType().Name)
+                                {
+                                    case "Boolean":
+                                        row.Append(BoolToString((bool)reader[i]) + "\t"); // tab delimited fields
+                                        break;
+
+                                    case "DateTime":
+                                        row.Append(((DateTime)reader[i]).ToString("MM/dd/yyyy") + "\t"); // tab delimited fields
+                                        break;
+
+                                    default:
+                                        row.Append(reader[i].ToString().Replace('\t', ' ') + "\t"); // tab delimited fields
+                                        break;
+                                }
                             }
                             rows.Add(row.ToString(0, row.Length - 1).Replace("\n", ""));
                         }
@@ -426,6 +441,7 @@ namespace ZPM.Net.Controllers
                                 throw new Exception("unexpected string condition '" + f.Name + "' - '" + f.Condition + "'");
                         }
                         break;
+
                     case "zpm-filter-condition-integer":
                         sql.Append(WhereColumnName(f));
                         switch (f.Condition)
@@ -439,6 +455,25 @@ namespace ZPM.Net.Controllers
                                 throw new Exception("unexpected integer condition '" + f.Name + "' - '" + f.Condition + "'");
                         }
                         break;
+
+                    case "zpm-filter-condition-number":
+                        sql.Append(WhereColumnName(f));
+                        switch (f.Condition)
+                        {
+                            case "EQ": sql.Append("=" + SQlAddParameter(float.Parse(f.Value), cmd, ref parmCount)); break;  // equal
+                            case "GT": sql.Append(">" + SQlAddParameter(float.Parse(f.Value), cmd, ref parmCount)); break;
+                            case "GE": sql.Append(">=" + SQlAddParameter(float.Parse(f.Value), cmd, ref parmCount)); break;
+                            case "LT": sql.Append("<" + SQlAddParameter(float.Parse(f.Value), cmd, ref parmCount)); break;
+                            case "LE": sql.Append("<=" + SQlAddParameter(float.Parse(f.Value), cmd, ref parmCount)); break;
+                            default:
+                                throw new Exception("unexpected number condition '" + f.Name + "' - '" + f.Condition + "'");
+                        }
+                        break;
+
+                    case "zpm-filter-condition-bool":
+                        sql.Append(WhereColumnName(f) + (f.Value == "1" ? "=1" : "=0"));
+                        break;
+
                     case "zpm-filter-condition-date":
                         var values = f.Value.Split('\t');
                         sql.Append(WhereColumnName(f));
@@ -530,20 +565,24 @@ namespace ZPM.Net.Controllers
                 altrow.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 altrow.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#99CCFF"));
 
-                var dt = package.Workbook.Styles.CreateNamedStyle("date");
-                dt.Style.Numberformat.Format = "mm/dd/yyyy";
-                dt.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                var dateFmt = package.Workbook.Styles.CreateNamedStyle("date");
+                dateFmt.Style.Numberformat.Format = "mm/dd/yyyy";
+                dateFmt.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                var boolFmt = package.Workbook.Styles.CreateNamedStyle("bool");
+                boolFmt.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
 
                 sheet.Cells[1, 1, 1, parms.ColumnNames.Length].StyleName = "header";
                 for (int x = 1; x <= parms.ColumnNames.Length; x++)
                 {
                     ExcelHeadingFormat(sheet, x, parms.ColumnNames[x - 1]);
                     sheet.Cells[1, x].Value = parms.ColumnHeadings[x - 1];
-                    if (parms.ColumnNames[x - 1].Contains("Date") || parms.ColumnNames[x - 1].Contains("Dttm"))
-                        sheet.Column(x).StyleName = "date";
+                    //if (parms.ColumnNames[x - 1].Contains("Date") || parms.ColumnNames[x - 1].Contains("Dttm"))
+                    //    sheet.Column(x).StyleName = "date";
                 }
 
                 int row = 1;
+                int numFormatCnt = 0;
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -552,7 +591,41 @@ namespace ZPM.Net.Controllers
                         {
                             row++;
                             for (int i = 0; i < parms.ColumnNames.Length; i++)
-                                sheet.Cells[row, i + 1].Value = reader[i];
+                            {
+                                switch (reader[i].GetType().Name)
+                                {
+                                    case "Boolean":
+                                        if (row == 2) // first data row
+                                            sheet.Column(i+1).StyleName = "bool";
+                                        sheet.Cells[row, i + 1].Value = BoolToString((bool)reader[i]);
+                                        break;
+
+                                    case "DateTime":
+                                        if (row == 2)
+                                            sheet.Column(i + 1).StyleName = "date";
+                                        sheet.Cells[row, i + 1].Value = reader[i];
+                                        break;
+
+                                    case "Decimal":
+                                        if (row == 2)
+                                        {
+                                            var numStr = reader[i].ToString();
+                                            var dpos = numStr.IndexOf(".");
+                                            var numFmtName = "num" + (++numFormatCnt).ToString();
+                                            var numFmt = package.Workbook.Styles.CreateNamedStyle(numFmtName);
+                                            if (dpos != -1)
+                                                numFmt.Style.Numberformat.Format = "#,##0" + ".".PadRight(numStr.Length - dpos, '0');
+                                            numFmt.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                                            sheet.Column(i + 1).StyleName = numFmtName;
+                                        }
+                                        sheet.Cells[row, i + 1].Value = reader[i];
+                                        break;
+
+                                    default:
+                                        sheet.Cells[row, i + 1].Value = reader[i];
+                                        break;
+                                }
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -726,10 +799,20 @@ namespace ZPM.Net.Controllers
                             row = table.AddRow();
                             for (int i = 0; i < parms.ColumnNames.Length; i++)
                             {
-                                if (reader[i].GetType() == typeof(DateTime))
-                                    row.Cells[i].AddParagraph(Zpm.FormatDate(reader[i]));
-                                else
-                                    row.Cells[i].AddParagraph(reader[i].ToString());
+                                switch (reader[i].GetType().Name)
+                                {
+                                    case "Boolean":
+                                        row.Cells[i].AddParagraph(BoolToString((bool)reader[i]));
+                                        break;
+
+                                    case "DateTime":
+                                        row.Cells[i].AddParagraph(Zpm.FormatDate(reader[i]));
+                                        break;
+
+                                    default:
+                                        row.Cells[i].AddParagraph(reader[i].ToString());
+                                        break;
+                                }
                             }
                         }
                         catch (Exception ex)

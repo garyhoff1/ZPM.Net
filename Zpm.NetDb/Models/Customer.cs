@@ -25,6 +25,7 @@ namespace ZPM.NetDb.Models
         public string Email { get; set; }
         public int? CustomerCategoryId { get; set; }
         public decimal CreditLimit { get; set; }
+        public bool Statement { get; set; }
 
         [Column(TypeName = "datetime")]
         public DateTime? ReviewDate { get; set; }

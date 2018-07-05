@@ -104,9 +104,12 @@
             <option value="ZipCode" data-filter-name="zpm-filter-condition-string">Zip Code</option>
             <option value="PhoneNumber" data-filter-name="zpm-filter-condition-string">Phone Number</option>
             <option value="Email" data-filter-name="zpm-filter-condition-string">Email</option>
+            <option value="CustomerCategory" data-filter-name="zpm-filter-condition-string">Customer Category</option>
+            <option value="CreditLimit" data-filter-name="zpm-filter-condition-number">Credit Limit</option>
+            <option value="ReviewDate" data-filter-name="zpm-filter-condition-date">Review Date</option>
+            <option value="Statement" data-filter-name="zpm-filter-condition-bool">Statements</option>
             <option value="CreatedDttm" data-filter-name="zpm-filter-condition-date">Created Date</option>
             <option value="ChangedDttm" data-filter-name="zpm-filter-condition-date">Changed Date</option>
-            <option value="CustomerCategory" data-filter-name="zpm-filter-condition-string">Customer Category</option>
         </select>
     </div>
     <div id="ReportOptions" style="padding:2px 5px 0 5px;">
@@ -160,6 +163,9 @@
                 <th id="PhoneNumber">Phone Number</th>
                 <th id="Email">E-Mail</th>
                 <th id="CustomerCategory"><div style="min-width:100px">Customer Category</div></th>
+                <th id="CreditLimit">Credit Limit</th>
+                <th id="ReviewDate">Review Date</th>
+                <th id="Statement">Statements</th>
                 <th id="CreatedDttm">Created Date</th>
                 <th id="ChangedDttm">Changed Date</th>
                 <th id="blank">Remarks</th>
@@ -175,6 +181,9 @@
                 <td>{PhoneNumber}</td>
                 <td>{Email}</td>
                 <td>{CustomerCategory}</td>
+                <td style="text-align:right">{CreditLimit}</td>
+                <td>{ReviewDate}</td>
+                <td style="text-align:center">{Statement}</td>
                 <td>{CreatedDttm}</td>
                 <td>{ChangedDttm}</td>
                 <td>{blank}</td>

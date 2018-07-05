@@ -57,7 +57,7 @@ function ZpmDataView(viewId, modelTextName, getModelMethodName, focusOnChange, f
     window.onbeforeunload = this.BeforeUnloadPage;
     this.$DataPanel.hide();
     this.$Panel[0].dataView = this; // for reference on callbacks
-    this.DataFields = this.GetDataFields("df");
+    this.DataFields = null; // this.GetDataFields("df");
     document.zpmDataView = this;
     document.title = modelTextName;
 };
@@ -286,6 +286,8 @@ ZpmDataView.prototype.BindModelToForm = function (model, saveResult) {
 // pass datafields var.
 
 ZpmDataView.prototype.BindDataToFields = function (model, saveResult) {
+    if (this.DataFields == null)
+        this.DataFields = this.GetDataFields("df");
     this.ClearChanged(this.$ViewId);
     this.$DataPanel.find('.zpm-dv-error').removeClass('zpm-dv-error');
     this.$HideIfNoData.show();
@@ -379,7 +381,7 @@ ZpmDataView.prototype.GetSetFunctionAssign = function ($ctrl, classPrefix) {
                     break;
             }
             break;
-        case "numeric":
+        case "number":
             var decimals = $ctrl.attr("data-decimals");
             if (!(decimals === undefined))
                 $ctrl[0].DataDecimals = parseInt(decimals);
@@ -388,22 +390,35 @@ ZpmDataView.prototype.GetSetFunctionAssign = function ($ctrl, classPrefix) {
                 case 'INPUT':
                 case 'SELECT':
                 case 'TEXTAREA':
-                    $ctrl[0].DataView_SetData = this.Set_NumericUsingVal;
+                    $ctrl[0].DataView_SetData = this.Set_NumberUsingVal;
                     if (getset)
-                        $ctrl[0].DataView_GetData = this.Get_NumericUsingVal;
+                        $ctrl[0].DataView_GetData = this.Get_NumberUsingVal;
                     break;
                 default:
-                    $ctrl[0].DataView_SetData = this.Set_NumericUsingText;
+                    $ctrl[0].DataView_SetData = this.Set_NumberUsingText;
                     if (getset)
-                        $ctrl[0].DataView_GetData = this.Get_NumericrUsingText;
+                        $ctrl[0].DataView_GetData = this.Get_NumberUsingText;
                     break;
             }
             break;
+        case "bool": // checkbox
+            if ($ctrl[0].nodeName == 'INPUT' && $ctrl.prop('type') == 'checkbox') {
+                $ctrl[0].DataView_SetData = this.Set_Bool;
+                if (getset)
+                    $ctrl[0].DataView_GetData = this.Get_Bool;
+            } else {
+                throw "invalid nodeName '" + $ctrl[0].nodeName + "' for data type bool on control id '" + $ctrl[0].id + "'";
+            }
+            break;
 
-        default:
-            throw "invalid data type: " + dataType;
+        default: // hook for custom data types
+            this.GetSetCustomFunctionAssign($ctrl, dataType, getset);
     }
 }
+
+ZpmDataView.prototype.GetSetCustomFunctionAssign = function ($ctrl, dataType, getset) {
+    throw "invalid data type: " + dataType + " on control id '" + $ctrl[0].id + "'";
+};
 
 // ===== data Set methods =======================
 ZpmDataView.prototype.Set_StringUsingVal = function (value) {
@@ -422,11 +437,11 @@ ZpmDataView.prototype.Set_IntegerUsingText = function (value) {
     $(this).text((value == 0) ? "" : value.toString());
 };
 
-ZpmDataView.prototype.Set_NumericUsingVal = function (value) {
+ZpmDataView.prototype.Set_NumberUsingVal = function (value) {
     $(this).val(zpm.FormatNumber(value, this.DataDecimals));
 };
 
-ZpmDataView.prototype.Set_NumericUsingText = function (value) {
+ZpmDataView.prototype.Set_NumberUsingText = function (value) {
     $(this).text(zpm.FormatNumber(value, this.DataDecimals));
 };
 
@@ -438,6 +453,9 @@ ZpmDataView.prototype.Set_DateUsingText = function (value) {
     $(this).text(zpm.FormatDate(value));
 };
 
+ZpmDataView.prototype.Set_Bool = function (value) {
+    this.checked = value;
+};
 
 // ===== data Get methods =======================
 ZpmDataView.prototype.Get_StringUsingVal = function (onBlur) {
@@ -466,26 +484,26 @@ ZpmDataView.prototype.Get_IntegerUsingText = function (onBlur) {
     return zpm.GetInteger(value);
 };
 
-ZpmDataView.prototype.Get_NumericUsingVal = function (onBlur) {
+ZpmDataView.prototype.Get_NumberUsingVal = function (onBlur) {
     var value = $(this).val().trim();
     if (value == "")
         return 0;
     if (!zpm.IsNumeric(value))
         throw { name: INVALID_VALUE, message: "Invalid numeric value" };
 
-    var num = zpm.GetNumeric(value, this.DataDecimals);
+    var num = zpm.GetNumber(value, this.DataDecimals);
     if (onBlur) // redisplay on focus lost
         $(this).val(zpm.FormatNumber(num, this.DataDecimals));
     return num;
 };
 
-ZpmDataView.prototype.Get_NumericUsingText = function (onBlur) {
+ZpmDataView.prototype.Get_NumberUsingText = function (onBlur) {
     var value = $(this).text().trim();
     if (value == "")
         return 0;
     if (!zpm.IsNumeric(value))
         throw { name: INVALID_VALUE, message: "Invalid numeric value" };
-    return zpm.GetNumeric(value, this.DataDecimals);
+    return zpm.GetNumber(value, this.DataDecimals);
 };
 
 ZpmDataView.prototype.Get_DateUsingVal = function (onBlur) {
@@ -509,6 +527,9 @@ ZpmDataView.prototype.Get_DateUsingText = function (onBlur) {
     return new Date($(this).text());
 };
 
+ZpmDataView.prototype.Get_Bool = function (onBlur) {
+    return this.checked;
+};
 
 ZpmDataView.prototype.Add = function (addMethodName) {
     var ActiveDataView = this; // save context
@@ -746,27 +767,22 @@ ZpmDataView.prototype.Message = function (message) {
     this.$DataPanelMessage.text(message);
 };
 
-ZpmDataView.prototype.GetFieldValue = function ($fld) {
-    if ($fld.is(':checkbox'))
-        return $fld.prop('checked');
-    return $fld.val().trim();
-};
-
 ZpmDataView.prototype.OnFieldChanged = function (e, onBlur) {
     var $fld = $(e.currentTarget || e.target);
+    var $highlightFld = ($fld[0].nodeName == 'INPUT' && $fld.prop('type') == 'checkbox') ? $fld.parent() : $fld; // can't change background on checkbox, use parent
     var changedCount = this.$ViewId.find(".zpm-field-changed").length;
     var initialValue = $fld.attr("data-initial-value");
-    var hasFieldChanged = $fld.hasClass("zpm-field-changed");
+    var hasFieldChanged = $highlightFld.hasClass("zpm-field-changed");
     try {
-        if (initialValue == ($fld[0].DataView_GetData(onBlur) || "").toString()) { // this.GetFieldValue($fld)
+        if (initialValue == ($fld[0].DataView_GetData(onBlur) || "").toString()) {
             if (hasFieldChanged) {
-                $fld.removeClass('zpm-field-changed');
+                $highlightFld.removeClass('zpm-field-changed');
                 if (changedCount == 1) // would be zero now, no changes
                     this.ActivateButtons(false, this.NewModel != null, false);
             }
         } else {
             if (!hasFieldChanged) {
-                $fld.addClass('zpm-field-changed');
+                $highlightFld.addClass('zpm-field-changed');
                 if (changedCount == 0) //  has changes now
                     this.ActivateButtons(true, true, this.NewModel == null);
             }

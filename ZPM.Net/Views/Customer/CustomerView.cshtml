@@ -87,11 +87,15 @@
                 </tr>
                 <tr>
                     <td class="zpm-dv-td-prompt">Credit Limit</td>
-                    <td><input id="CreditLimit" type="text" class="df-getset" maxlength='18' style="width:80px;" data-type="numeric" data-decimals="2" /></td>
+                    <td><input id="CreditLimit" type="text" class="df-getset" maxlength='18' style="width:80px;" data-type="number" data-decimals="2" /></td>
                 </tr>
                 <tr>
                     <td class="zpm-dv-td-prompt">Review Date</td>
                     <td><input id="ReviewDate" type="text" class="df-getset" style="width:80px;" data-type="date" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Monthly Statements</td>
+                    <td><div style="width:80px"><input id="Statement" type="checkbox" class="df-getset" data-type="bool" /></div></td>
                 </tr>
             </table>
             @Html.DataView_ControlPanel((DataViewOptions)ViewBag.Options)
@@ -112,7 +116,8 @@
                     "<td>" + model.City + "</td>" +
                     "</tr> ";
             };
-          });
+        });
+
     </script>
 }
 

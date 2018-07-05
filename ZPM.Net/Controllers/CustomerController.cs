@@ -128,6 +128,7 @@ namespace ZPM.Net.Controllers
             public int? CustomerCategoryId { get; set; }
             public decimal CreditLimit { get; set; }
             public DateTime? ReviewDate { get; set; }
+            public bool Statement { get; set; }
         }
 
         private void BindFormToDbModel(CustomerForm form, Customer model, SaveReturn saveReturn)
@@ -142,6 +143,7 @@ namespace ZPM.Net.Controllers
             model.CustomerCategoryId = Zpm.NullIfZero(form.CustomerCategoryId);
             model.CreditLimit = form.CreditLimit;
             model.ReviewDate = form.ReviewDate;
+            model.Statement = form.Statement;
             model.ChangedById = User.Identity.GetUserId<int>();
             model.ChangedDttm = DateTime.Now;
         }

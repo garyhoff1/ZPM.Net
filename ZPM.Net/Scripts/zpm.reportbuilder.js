@@ -222,6 +222,18 @@ ZpmReportBuilder.prototype.FilterConditionHtml = function (filterName) {
                 '   <input class="zpm-filter-text" type= "text" maxlength= "80" />' +
                 '</div>';
 
+        case "zpm-filter-condition-number":
+            return '<div class="zpm-filter" data-filter-name="zpm-filter-condition-number" data-type="zpm-filter-condition-number">' +
+                '   <select>' +
+                '      <option value="EQ" selected="">equal to</option>' +
+                '      <option value="GT">greater than</option>' +
+                '      <option value="GE">greater or =</option>' +
+                '      <option value="LT">less than</option>' +
+                '      <option value="LE">less than or =</option>' +
+                '   </select>' +
+                '   <input class="zpm-filter-text" type= "text" maxlength= "80" />' +
+                '</div>';
+
         case "zpm-filter-condition-date":
             return '<div class="zpm-filter" data-filter-name="zpm-filter-condition-date" data-type="zpm-filter-condition-date">' +
                    '   <select class="zpm-filter-condition" onchange="rb.DateFilterConditionChange(this, true);" >' +
@@ -279,6 +291,14 @@ ZpmReportBuilder.prototype.FilterConditionHtml = function (filterName) {
                    '      </div>' +
                    '   </div>' +
                    '</div >';
+
+        case "zpm-filter-condition-bool":
+            return '<div class="zpm-filter" data-filter-name="zpm-filter-condition-bool" data-type="zpm-filter-condition-bool">' +
+                '   <select>' +
+                '      <option value="1" selected=""> Is True</option>' +
+                '      <option value="0"> Is False</option>' +
+                '   </select>' +
+                '</div>';
 
         default: // custom filters
             var $filter = this.$filterTemplates.filter("[data-filter-name='" + filterName + "']");
@@ -539,10 +559,14 @@ ZpmReportBuilder.prototype.ReportNameChanged = function () {
                     switch (f.Type) {
                         case "zpm-filter-condition-string":
                         case "zpm-filter-condition-integer":
+                        case "zpm-filter-condition-number":
                             this.ConditionalFilterSet(f);
                             break;
                         case "zpm-filter-condition-date":
                             this.ConditionalDateFilterSet(f);
+                            break;
+                        case "zpm-filter-condition-bool":
+                            this.ConditionalBoolFilterSet(f);
                             break;
                         case 'zpm-filter-chosen-integer':
                         case 'zpm-filter-chosen-string':
@@ -699,6 +723,16 @@ ZpmReportBuilder.prototype.ConditionalFilterSet = function (f) {
 	$tr.find('.zpm-filter select').val(f.Condition);
 	$tr.find('.zpm-filter input').val(f.Value);
 	this.FilterSet(f, $e);
+}
+
+ZpmReportBuilder.prototype.ConditionalBoolFilterSet = function (f) {
+    this.$filterTable.append(this.FilterTableRowHtml());
+    $tr = $(this.$filterTable[0].rows[this.$filterTable[0].rows.length - 1]); // get row just added
+    var $e = $tr.find('.zpm-filter-select');
+    $e.val(f.Name); // select filter name
+    this.FilterOptionChanged($e[0], false); // create the filter elements
+    $tr.find('.zpm-filter select').val(f.Value);
+    this.FilterSet(f, $e);
 }
 
 ZpmReportBuilder.prototype.DateFilterConditionChange = function (e, updateComment) {
@@ -1016,7 +1050,8 @@ ZpmReportBuilder.prototype.ReportParameters = function () {
 				case "zpm-filter-condition-string":
 					condition = $div.find('select').val();
 					value = $($div.find('input')).val().trim();
-					break;
+                    break;
+
 				case "zpm-filter-condition-integer":
 					condition = $div.find('select').val();
 					value = $($div.find('input')).val().trim();
@@ -1027,8 +1062,26 @@ ZpmReportBuilder.prototype.ReportParameters = function () {
 							return null;
 						}
 					}
-					break;
-				case "zpm-filter-condition-date":
+                    break;
+
+                case "zpm-filter-condition-number": ;
+                    condition = $div.find('select').val();
+                    value = $($div.find('input')).val().trim();
+                    if (value != '') {
+                        if (zpm.GetNumber(value) == null) {
+                            $div.find('input').focus();
+                            alert("Invalid Number");
+                            return null;
+                        }
+                    }
+                    break;
+
+                case "zpm-filter-condition-bool":
+                    condition = "EQ";
+                    value = $div.find('select').val();
+                    break;
+
+                case "zpm-filter-condition-date":
 					condition = $div.find('select').val();
 					switch (condition) {
 						case "DR":
@@ -1047,14 +1100,16 @@ ZpmReportBuilder.prototype.ReportParameters = function () {
 								continue;
 							break;
 					}
-					break;
+                    break;
+
 				case 'zpm-filter-chosen-string':
 					condition = "";
 					value = this.GetChosenOrder($div.find('.chosen-select'));
 					if (value == null || value.length == 0)
 						continue;
 					value = value.join('\t');
-					break;
+                    break;
+
 				case 'zpm-filter-chosen-integer':
 					condition = "";
 					var value = this.GetChosenOrder($div.find('.chosen-select'));
@@ -1062,7 +1117,8 @@ ZpmReportBuilder.prototype.ReportParameters = function () {
 						continue;
 					//value = zpm.StringArrayToInt(value);
 					value = value.join('\t');
-					break;
+                    break;
+
 				case "zpm-filter-string":
 					condition = "";
 					value = $div.find('input').val().trim();
