@@ -54,6 +54,8 @@ namespace ZPM.NetDb
         public DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<CustomerCategory> CustomerCategorys { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<CustomerContact> CustomerContacts { get; set; }
         public DbSet<Setting> Settings { get; set; }
 
     }
