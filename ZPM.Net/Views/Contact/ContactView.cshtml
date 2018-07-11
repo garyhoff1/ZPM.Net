@@ -1,0 +1,222 @@
+﻿@model List<ZPM.NetDb.Models.Contact>
+@using Helpers
+@using ZPM.Net.Controllers
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Options.Title = "Contact View"; // for page tab title
+    ViewBag.Options.ModelName = "Contact"; // for for element names. must not have spaces.
+    ViewBag.Options.ModelTextName = "Contact"; // for page display. may have spaces.
+    ViewBag.Options.Height = 500;  // pixel height of the list and panel sections
+    ViewBag.Options.ListWidth = 350; // pixel width of the list section
+    ViewBag.Options.PanelWidth = 630;  // pixel width of the panel section
+    ViewBag.Options.GetModel = "/Contact/GetModel";
+    ViewBag.Options.AddModel = "/Contact/AddModel";
+    ViewBag.Options.SaveModel = "/Contact/SaveModel";
+    ViewBag.Options.DeleteModel = "/Contact/DeleteModel";
+    ViewBag.Options.FocusOnChange = "LastName";
+    ViewBag.Options.FocusOnAdd = "LastName";
+}
+
+
+<link rel="stylesheet" href="~/Content/css/zpm.dataview.css" />
+<link href='~/Content/css/chosen.css' rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .zpm-dv-tbl td {
+        width: 300px; /* width of the left side table - one with list of records */
+    }
+
+    .zpm-dv-panel-title {
+        margin-bottom: 20px;
+    }
+
+    .chosen-container.chosen-with-drop .chosen-drop {
+        left: 0;
+        display: block;
+    }
+    }
+</style>
+
+<div id="@(ViewBag.Options.ModelName)View" style="display:inline-block; margin-top:2px; height: @(ViewBag.Options.Height)px;">
+    <div id="@(ViewBag.Options.ModelName)List" class="zpm-dv-list">
+        @Html.DataView_Filter((DataViewOptions)ViewBag.Options)
+        @Html.DataView_AddButton((DataViewOptions)ViewBag.Options)
+        <table border="1" class="zpm-dv-tbl zpm-fixed-heading" style="height:@(ViewBag.Options.ListTableHeight)px; width:@(ViewBag.Options.ListWidth)px;"
+               onkeydown="dv.KeyPress(this, event)">
+            <thead>
+                <tr>
+                    <th onclick="zpm.TableSort(this);"><div style="text-align:left">Last Name</div></th>
+                    <th onclick="zpm.TableSort(this);"><div style="text-align:left">First Name</div></th>
+                    <th onclick="zpm.TableSort(this);"><div style="text-align:left">Middle</div></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id='ID@{@item.ContactId}' onclick="dv.RowClicked(this);">
+                        <td>@item.LastName</td>
+                        <td>@item.FirstName</td>
+                        <td>@item.MiddleName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="zpm-dv-panel" style="width:@(ViewBag.Options.PanelWidth)px; margin-left: @(ViewBag.Options.ListWidth+8)px;">
+        <div class="zpm-dv-panel-title">@(ViewBag.Options.ModelTextName) Setup</div>
+        <div id="@(ViewBag.Options.ModelName)Panel" class="zpm-dv-data-panel" style="display:none;">
+            <input id="ContactId" type="hidden" class="df-getset df-id" data-type="integer" />
+            <table>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Last Name</td>
+                    <td><input id="LastName" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">First Name</td>
+                    <td><input id="FirstName" type="text" class="df-getset" maxlength='30' style="width:220px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Middle Name</td>
+                    <td><input id="MiddleName" type="text" class="df-getset" maxlength='30' style="width:220px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Use Customer Address</td>
+                    <td>
+                        <div style="width:80px;"><input id="UseCustomerAddress" type="checkbox" class="df-getset" data-type="bool" onchange="UseCustomerAddressChanged(this, event)" /></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Address</td>
+                    <td><input id="Address" type="text" class="df-getset address-field" maxlength='50' style="width:320px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">City</td>
+                    <td><input id="City" type="text" class="df-getset address-field" maxlength='30' style="width:220px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">State</td>
+                    <td>@Html.ZpmSelectState("State", new { @class = "df-getset address-field" })</td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Zip Code</td>
+                    <td><input id="ZipCode" type="text" class="df-getset address-field" maxlength='12' style="width:100px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">Phone Number</td>
+                    <td><input id="PhoneNumber" type="text" class="df-getset" maxlength='20' style="width:160px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt">E-Mail Address</td>
+                    <td><input id="Email" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                </tr>
+                <tr>
+                    <td class="zpm-dv-td-prompt" style="vertical-align:middle">Is a Contact For</td>
+                    <td>
+                        <select id="CustomerIds" class="df-getset chosen-select" style="width:325px;" multiple="" data-type="integer-array" data-placeholder=" ">@Html.Raw(ViewBag.CustomerOptions)</select>
+                    </td>
+                </tr>
+            </table>
+            @Html.DataView_ControlPanel((DataViewOptions)ViewBag.Options)
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript" src='~/Scripts/chosen.jquery.js'></script>
+    <script type="text/javascript" src='~/Scripts/ui.multiselect.js'></script>
+    <script type="text/javascript" src='~/Scripts/zpm.dataview.js'></script>
+    <script type="text/javascript">
+        var dv;
+        var customerView = null;
+        var $CustomerIds = $('#CustomerIds');
+
+        $(document).ready(function () {
+            dv = @Html.DataView_NewDataView((DataViewOptions)ViewBag.Options);
+            dv.ListRowHtml = function (model) {
+                return "<tr id='ID" + model.ContactId + "' onclick='dv.RowClicked(this);'>" +
+                    "<td>" + model.LastName + "</td>" +
+                    "<td>" + model.FirstName + "</td>" +
+                    "<td>" + model.MiddleName + "</td>" +
+                    "</tr> ";
+            };
+            $('.chosen-select').chosen({ width: '327px' });
+
+            dv.BindDataToFieldsExtend = function (model, saveResult) { // when displaying existing record
+                UseCustomerAddressChanged($('#UseCustomerAddress')[0], null);
+                CheckCustomerList(false);
+            }
+            dv.PostAddExtend = function (model) { // when adding new record
+                $CustomerIds.val(""); // clear
+                $CustomerIds.trigger("chosen:updated");
+                UseCustomerAddressChanged($('#UseCustomerAddress')[0], null);
+                CheckCustomerList(true);
+            }
+
+            dv.PostSave = function (saveResult) { // after server has saved changes
+                ReloadCustomerContacts();
+                ZpmDataView.prototype.PostSave.call(dv, saveResult);
+            }
+
+            dv.PostDelete = function (result) { // after server has deleted a contact
+                ReloadCustomerContacts();
+                ZpmDataView.prototype.PostDelete.call(dv, result);
+            }
+
+        });
+
+        function UseCustomerAddressChanged(e, event) {
+            if (event != null)
+                dv.OnFieldChanged(event, false);
+            $('.address-field').prop('disabled', e.checked);
+        }
+
+        // ---- Link to Customer View --------------------------------
+        // make sure customer list is current
+        // addingModel: if true, automatically add linked customer to the customers list.
+        function CheckCustomerList(addingModel) {
+            if (customerView != null && !customerView.closed) { // linked to customer view
+                var id = customerView.$('#CustomerId').val();
+                var values = $CustomerIds.val();
+                if ($CustomerIds.find("option[value='" + id + "']").length == 0) { // not found, reload options.
+                    if (addingModel && values.indexOf(id) == -1)
+                        values.push(id); // automatically add linked customer to selected list.
+
+                    $.ajax({
+                        url: "/Contact/CustomerOptions",
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (options) {
+                            if (options == null) {
+                                dv.Alert("Action /Contact/CustomerOptions failed");
+                            } else {
+                                $CustomerIds.html(options);
+                                $CustomerIds.val(values);
+                                $CustomerIds.trigger("chosen:updated");
+                            }
+                        },
+                        error: function (err) {
+                            zpm.ErrorDialog(err.responseText, 800, 1000);
+                        }
+                    });
+                } if (addingModel && values.indexOf(id) == -1) {
+                    values.push(id); // automatically add linked customer to selected list.
+                    $CustomerIds.val(values);
+                    $CustomerIds.trigger("chosen:updated");
+                }
+            }
+        }
+
+        // tell linked customer view to reload it's contacts list
+        function ReloadCustomerContacts() {
+            if (customerView != null && !customerView.closed)
+                customerView.ReloadCustomerContacts();
+        }
+
+    </script>
+}
+
+
+
+
+
+

@@ -426,6 +426,19 @@ Zpm.prototype.AjaxCallbackCheck = function (startTime) {
     }
 }
 
+// open another window and set reference to parent window in child
+Zpm.prototype.OpenChildWindow = function(url, varNameForParentWin) {
+    var win = {};
+    win.Handle = window.open(url);
+    win.Timer = setInterval(function () {
+        if (!(win.Handle[varNameForParentWin] === undefined)) {  // allow window to open, if error here - variable name is probably incorrect
+            win.Handle[varNameForParentWin] = window; // provide CustomerView window to Contact View.
+            clearInterval(win.Timer);
+        }
+    }, 500);
+    return win;
+}
+
 // ---------------------------------------------------------------------
 // string, number prototype extensions ------------------------------------------------
 // ---------------------------------------------------------------------

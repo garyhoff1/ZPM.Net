@@ -4,6 +4,30 @@
     background: yellow !important;
 }
 
+.zpm-field-changed .chosen-choices {
+    background-image: none !important; 
+    background-color: yellow !important;
+}
+
+.zpm-notebook-tabs ul li.ui-state-default a {
+    background-color: #777;
+    color: white;
+}
+
+.zpm-notebook-tabs ul li.ui-tabs-active a {
+    background-color: white;
+    color: #4b6c9e;
+    border: 0px solid #dddddd;
+}
+
+.zpm-notebook-tabs ul li {
+    list-style: none;
+}
+
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+    padding: .1em .6em;
+}
+
 /* --- Fixed Heading --- */
 .zpm-fixed-heading { overflow: auto; border-collapse:collapse; display:block; }
 .zpm-fixed-heading th div { position: absolute; }

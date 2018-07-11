@@ -219,6 +219,7 @@
     <Compile Include="Controllers\Customer2Controller.cs" />
     <Compile Include="Controllers\CustomerCategoryReportsController.cs" />
     <Compile Include="Controllers\CustomerCategoryController.cs" />
+    <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\CustomerReportsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -245,10 +246,11 @@
     <Compile Include="Zpm.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\chosen-sprite%402x.png" />
-    <Content Include="Content\chosen-sprite.png" />
+    <Content Include="App_Data\ZPM.NetDemo.mdf" />
     <Content Include="Content\css\bootstrap.css" />
     <Content Include="Content\css\bootstrap.min.css" />
+    <Content Include="Content\css\chosen-sprite%402x.png" />
+    <Content Include="Content\css\chosen-sprite.png" />
     <Content Include="Content\css\chosen.css" />
     <Content Include="Content\css\Site.css" />
     <Content Include="Content\css\ui.multiselect.css" />
@@ -259,6 +261,7 @@
     <Content Include="Content\images\AddIcon.png" />
     <Content Include="Content\images\loading.gif" />
     <Content Include="Content\images\menuIcon.png" />
+    <Content Include="Content\images\pencil.png" />
     <Content Include="Content\themes\base\accordion.css" />
     <Content Include="Content\themes\base\all.css" />
     <Content Include="Content\themes\base\autocomplete.css" />
@@ -450,6 +453,7 @@
     <Content Include="Views\CustomerReports\CustomerReports.cshtml" />
     <Content Include="Views\CustomerCategoryReports\CustomerCategoryReports.cshtml" />
     <Content Include="Views\Template\TemplateView.cshtml" />
+    <Content Include="Views\Contact\ContactView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201804161603557_InitialCreate.resx">
@@ -474,9 +478,7 @@
       <Name>ZPM.NetDb</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

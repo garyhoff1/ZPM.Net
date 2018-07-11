@@ -22,6 +22,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Data;
 using System.Data.Entity;
 using System.Data.SqlClient;
@@ -30,6 +31,7 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using System.Text;
 
 namespace ZPM.Net.Controllers
 {
@@ -91,6 +93,47 @@ namespace ZPM.Net.Controllers
         public static string DbColumnNameEscape(string columnName)
         {
             return DbColumnNameEscapeLeft + columnName + DbColumnNameEscapeRight;
+        }
+
+        /// <summary>
+        /// This converts a class to a Dictionary list.  Is NOT recursive
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> ConvertToDictionary(object data)
+        {
+            if (data == null)
+                return null;
+            Dictionary<string, object> d = data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(data, null)); // convert to dictionary
+            return d;
+        }
+
+        public class StringValueOption
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
+        public static string HtmlOptions(List<StringValueOption> data)
+        {
+            StringBuilder options = new StringBuilder();
+            foreach (var d in data)
+                options.Append("<option value=\"" + d.value + "\">" + HttpUtility.HtmlEncode(d.text) + "</option>");
+            return options.ToString();
+        }
+
+        public class IntValueOption
+        {
+            public int value { get; set; }
+            public string text { get; set; }
+        }
+
+        public static string HtmlOptions(List<IntValueOption> data)
+        {
+            StringBuilder options = new StringBuilder();
+            foreach (var d in data)
+                options.Append("<option value=\"" + d.value.ToString() + "\">" + HttpUtility.HtmlEncode(d.text) + "</option>");
+            return options.ToString();
         }
     }
 }

@@ -17,12 +17,23 @@
     ViewBag.Options.FocusOnAdd = "CustomerName";
 }
 
-
+<link href='~/Content/css/chosen.css' rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="~/Content/css/zpm.dataview.css" />
 <style type="text/css">
-    .zpm-dv-tbl td {padding:2px 0 0px 4px;}
-    .last-col {width:100%;}
-    .customer-name {min-width:200px;}
+    .zpm-dv-tbl td {
+        padding: 2px 0 0px 4px;
+    }
+
+    .last-col {
+        width: 100%;
+    }
+
+    .customer-name { min-width: 200px; }
+    .pencil-edit { vertical-align: middle; }
+    .pencil-edit:hover { cursor:pointer; }
+
+    .tabPage { height:410px; }
+
 </style>
 
 <div id="@(ViewBag.Options.ModelName)View" style="display:inline-block; margin-top:2px; height: @(ViewBag.Options.Height)px;">
@@ -40,10 +51,10 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                <tr id='ID@{@item.CustomerId}' onclick="dv.RowClicked(this);">
-                    <td class="customer-name">@item.CustomerName</td>
-                    <td class="last-col">@item.City</td>
-                </tr>
+                    <tr id='ID@{@item.CustomerId}' onclick="dv.RowClicked(this);">
+                        <td class="customer-name">@item.CustomerName</td>
+                        <td class="last-col">@item.City</td>
+                    </tr>
                 }
             </tbody>
         </table>
@@ -52,58 +63,77 @@
         <div class="zpm-dv-panel-title">@(ViewBag.Options.ModelTextName) Setup</div>
         <div id="@(ViewBag.Options.ModelName)Panel" class="zpm-dv-data-panel" style="display:none;">
             <input id="CustomerId" type="hidden" class="df-getset df-id" data-type="integer" />
-            <table>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Customer Name</td>
-                    <td><input id="CustomerName" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Address</td>
-                    <td><input id="Address" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">City</td>
-                    <td><input id="City" type="text" class="df-getset" maxlength='30' style="width:220px;" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">State</td>
-                    <td>@Html.ZpmSelectState("State", new { @class = "df-getset" })</td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Zip Code</td>
-                    <td><input id="ZipCode" type="text" class="df-getset" maxlength='12' style="width:100px;" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Phone Number</td>
-                    <td><input id="PhoneNumber" type="text" class="df-getset" maxlength='20' style="width:160px;" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">E-Mail Address</td>
-                    <td><input id="Email" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Customer Category</td>
-                    <td>@Html.CustomerCategorySelect("CustomerCategoryId", new { @style = "padding:1px 2px", @class = "df-getset" })</td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Credit Limit</td>
-                    <td><input id="CreditLimit" type="text" class="df-getset" maxlength='18' style="width:80px;" data-type="number" data-decimals="2" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Review Date</td>
-                    <td><input id="ReviewDate" type="text" class="df-getset" style="width:80px;" data-type="date" /></td>
-                </tr>
-                <tr>
-                    <td class="zpm-dv-td-prompt">Monthly Statements</td>
-                    <td><div style="width:80px"><input id="Statement" type="checkbox" class="df-getset" data-type="bool" /></div></td>
-                </tr>
-            </table>
-            @Html.DataView_ControlPanel((DataViewOptions)ViewBag.Options)
+            <div id="NotebookTabs" class="zpm-notebook-tabs zpm-dv-hide-if-no-data">
+                <ul style="display:flex;">
+                    <li><a href="#GeneralTab">General</a></li>
+                    <li><a href="#CommentsTab">Comments</a></li>
+                </ul>
+                <div id="GeneralTab" class="tabPage">
+                    <table>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Customer Name</td>
+                            <td><input id="CustomerName" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Address</td>
+                            <td><input id="Address" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">City</td>
+                            <td><input id="City" type="text" class="df-getset" maxlength='30' style="width:220px;" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">State</td>
+                            <td>@Html.ZpmSelectState("State", new { @class = "df-getset" })</td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Zip Code</td>
+                            <td><input id="ZipCode" type="text" class="df-getset" maxlength='12' style="width:100px;" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Phone Number</td>
+                            <td><input id="PhoneNumber" type="text" class="df-getset" maxlength='20' style="width:160px;" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">E-Mail Address</td>
+                            <td><input id="Email" type="text" class="df-getset" maxlength='50' style="width:320px;" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Customer Category</td>
+                            <td>@Html.CustomerCategorySelect("CustomerCategoryId", new { @style = "padding:1px 2px", @class = "df-getset" })</td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Credit Limit</td>
+                            <td><input id="CreditLimit" type="text" class="df-getset" maxlength='18' style="width:80px;" data-type="number" data-decimals="2" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Review Date</td>
+                            <td><input id="ReviewDate" type="text" class="df-getset" style="width:80px;" data-type="date" /></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt">Monthly Statements</td>
+                            <td><div style="width:80px"><input id="Statement" type="checkbox" class="df-getset" data-type="bool" /></div></td>
+                        </tr>
+                        <tr>
+                            <td class="zpm-dv-td-prompt" style="vertical-align:middle">Customer Contacts</td>
+                            <td>
+                                <select id="ContactIds" class="df-getset chosen-select" style="width:325px;" multiple="" data-type="integer-array" data-placeholder=" ">@Html.Raw(ViewBag.ContactOptions)</select>
+                                <img src="~/Content/images/pencil.png" class="pencil-edit" onclick="EditContacts(this)" title="Open and link to Contacts View." />
+                            </td>
+                        </tr>
+                    </table>
+                    @Html.DataView_ControlPanel((DataViewOptions)ViewBag.Options)
+                </div>
+                <div id="CommentsTab" class="tabPage">
+                    Comments - under construction.
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script type="text/javascript" src='~/Scripts/chosen.jquery.js'></script>
     <script type="text/javascript" src='~/Scripts/zpm.dataview.js'></script>
     <script type="text/javascript">
         var dv;
@@ -116,7 +146,73 @@
                     "<td>" + model.City + "</td>" +
                     "</tr> ";
             };
+            $('.chosen-select').chosen({ width: '327px' });
+
+            $NotebookTabs = $('#NotebookTabs');
+            $NotebookTabs.tabs();
+            $NotebookTabs.tabs({ beforeActivate: NotebookTabChanging });
+            $NotebookTabs.on("tabsactivate", NotebookTabChanged);
         });
+
+        function NotebookTabChanging(event, ui) {
+            if (dv.NewModel != null) {
+                dv.Alert("For new customers the General tab must be filled out\nand saved before moving to other tabs.")
+                return false;
+            }
+            if (dv.IfChanged("changing tabs"))
+                return false;
+            return true; // ok to change tabs
+        }
+
+        function NotebookTabChanged(event, ui) {
+            switch (ui.newPanel[0].id) {
+                case "GeneralTab":
+                    break;
+                case "CommentsTab":
+                    CommentsTabRefresh();
+                    break;
+            }
+        }
+
+        function CommentsTabRefresh() {
+
+        }
+
+        function ReloadCustomerContacts() {
+            $.ajax({
+                url: "/Customer/ReloadCustomerContacts",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({ 'customerId': dv.CurrentModel.CustomerId }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == null) {
+                        dv.Alert("Action /Customer/ReloadCustomerContacts failed");
+                    } else {
+                        var $sel = $('#ContactIds');
+                        $sel.html(data.Options);
+                        $sel.val(data.Values);
+                        $sel.trigger("chosen:updated");
+                    }
+                },
+                error: function (err) {
+                    zpm.ErrorDialog(err.responseText, 800, 1000);
+                }
+            });
+        }
+
+        var contactWin = null;
+
+        function EditContacts(e) {
+            if (dv.IfChanged("going to Contact View."))
+                return;
+
+            if (contactWin == null || contactWin.Handle == null || contactWin.Handle.closed) {
+                contactWin = zpm.OpenChildWindow("/Contact/ContactView", "customerView");
+            } else {
+                contactWin.Handle.focus(); // only works with chrome.
+            }
+        }
 
     </script>
 }

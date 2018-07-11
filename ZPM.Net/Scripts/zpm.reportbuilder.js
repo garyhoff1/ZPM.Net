@@ -36,7 +36,7 @@ function ZpmReportBuilder(reportTableSelector, urlBase) {
 	zpm.FixedHeading(FindElement(reportTableSelector)); // create fixed heading elments
 	this.$reportTable = FindElement(reportTableSelector);
 
-	// defined by caller
+	// controls are defined by caller
 	this.$orderBy = FindElement('#OrderBy');
 	this.$reportName = FindElement('#ReportName');
 	this.$reportOptions = FindElement('#ReportOptions');
@@ -547,7 +547,7 @@ ZpmReportBuilder.prototype.ReportNameChanged = function () {
 			this.SetReportColumnList();
 
 			this.SetReportOrderBy(); // add selected columns to order by list
-            this.SetChosenOrder(this.$orderBy, rm.Parms.OrderBy);
+            Chosen.prototype.set_chosen_order(this.$orderBy, rm.Parms.OrderBy); //  this.SetChosenOrder(this.$orderBy, rm.Parms.OrderBy);
             if (rm.Parms.PdfOrientation == 'L')
                 this.$PdfLandscape.prop("checked", true);
             else
@@ -701,7 +701,7 @@ ZpmReportBuilder.prototype.ArrayFilterSet = function (f) {
 	var $e;
 	if (f.Id != "") {
 		$e = this.$reportOptions.find('#' + f.Id); // dedicated filter
-		this.SetChosenOrder($e, f.Value.split('\t'));
+        Chosen.prototype.set_chosen_order($e, f.Value.split('\t')); // this.SetChosenOrder($e, f.Value.split('\t'));
 	} else { // selectable filter
         this.$filterTable.append(this.FilterTableRowHtml());
 		$tr = $(this.$filterTable[0].rows[this.$filterTable[0].rows.length - 1]); // get row just added
@@ -709,7 +709,7 @@ ZpmReportBuilder.prototype.ArrayFilterSet = function (f) {
 		$e.val(f.Name); // select filter name
 		this.FilterOptionChanged($e[0], false); // create the filter elements
 		$e = $tr.find('.zpm-filter').find('select');
-		this.SetChosenOrder($e, f.Value.split('\t'));
+        Chosen.prototype.set_chosen_order($e, f.Value.split('\t')); // this.SetChosenOrder($e, f.Value.split('\t'));
 	}
 	this.FilterSet(f, $e);
 }
@@ -836,37 +836,11 @@ ZpmReportBuilder.prototype.SetReportOrderBy = function () {
 		var col = this.ReportColumnByName(this.report.ChosenColumnNames[x], this.report);
 		html += '<option value="' + col.Name + '">' + col.TextName + '</option>';
 	}
-	var orderByVal = this.GetChosenOrder(this.$orderBy);
+    var orderByVal = Chosen.prototype.get_chosen_order(this.$orderBy);  // this.GetChosenOrder(this.$orderBy);
+  
 	this.$orderBy.html(html);
 	this.$orderBy.trigger("chosen:updated"); // reset options
-	this.SetChosenOrder(this.$orderBy, orderByVal);
-}
-
-// this should be moved to jquery.chosen
-ZpmReportBuilder.prototype.GetChosenOrder = function ($e) {
-	var values = [];
-	var $selOptions = $e.find('option:selected');
-	var $seqOptions = $selOptions.filter('[chosen-seq]');
-	for (var x = 0; x < $seqOptions.length; x++)
-		values.push($seqOptions.filter('[chosen-seq=' + x + ']')[0].value);
-	$selOptions.not('[chosen-seq]').each(function () { values.push(this.value); }); // in case any not in sequence
-	return (values.length == 0) ? null : values;
-}
-
-// this should be moved to jquery.chosen
-ZpmReportBuilder.prototype.SetChosenOrder = function ($e, values) {
-	if (values == null || values.length == 0) {
-		$e.val(values);
-	} else {
-		for (var i = 0; i < values.length; i++) {
-			var $o = $e.find("[value='" + values[i] + "']");
-			if ($o.length == 1) { // if still in the list
-				$o.attr('chosen-seq', i);
-				$o[0].selected = true;
-			}
-		}
-	}
-	$e.trigger("chosen:updated");
+    Chosen.prototype.set_chosen_order(this.$orderBy, orderByVal); //  this.SetChosenOrder(this.$orderBy, orderByVal);
 }
 
 ZpmReportBuilder.prototype.GetSaveReportDialog = function () {
@@ -1031,7 +1005,7 @@ ZpmReportBuilder.prototype.ReportParameters = function () {
 				data.ColumnHeadings.push(c.Heading);
 		});
 	}
-    data.OrderBy = this.GetChosenOrder(this.$orderBy);
+    data.OrderBy = Chosen.prototype.get_chosen_order(this.$orderBy)  // this.GetChosenOrder(this.$orderBy);
     if (data.OrderBy == null)
         data.OrderBy = [];
 
@@ -1104,7 +1078,7 @@ ZpmReportBuilder.prototype.ReportParameters = function () {
 
 				case 'zpm-filter-chosen-string':
 					condition = "";
-					value = this.GetChosenOrder($div.find('.chosen-select'));
+                    value = Chosen.prototype.get_chosen_order($div.find('.chosen-select')); // this.GetChosenOrder($div.find('.chosen-select'));
 					if (value == null || value.length == 0)
 						continue;
 					value = value.join('\t');
@@ -1112,7 +1086,7 @@ ZpmReportBuilder.prototype.ReportParameters = function () {
 
 				case 'zpm-filter-chosen-integer':
 					condition = "";
-					var value = this.GetChosenOrder($div.find('.chosen-select'));
+                    var value = Chosen.prototype.get_chosen_order($div.find('.chosen-select')); // this.GetChosenOrder($div.find('.chosen-select'));
 					if (value == null || value.length == 0)
 						continue;
 					//value = zpm.StringArrayToInt(value);

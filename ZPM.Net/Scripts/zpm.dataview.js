@@ -278,12 +278,15 @@ ZpmDataView.prototype.BindModelToForm = function (model, saveResult) {
     this.CurrentModel = model; // save for restore if cancel
     this.BindDataToFields(model, saveResult);
     this.DataFields.$KeyFields.prop('disabled', true);
+    this.BindDataToFieldsExtend(model, saveResult);
     this.ActivateButtons(false, false, true);
     this.$DataPanel.show();
     //this.$FocusOnChange.focus();
 };
 
-// pass datafields var.
+ZpmDataView.prototype.BindDataToFieldsExtend = function (model, saveResult) {
+    // hook for customization. Display additional data after displaying existing model data.
+}
 
 ZpmDataView.prototype.BindDataToFields = function (model, saveResult) {
     if (this.DataFields == null)
@@ -365,6 +368,17 @@ ZpmDataView.prototype.GetSetFunctionAssign = function ($ctrl, classPrefix) {
                     break;
             }
             break;
+        case "integer-array":
+            switch ($ctrl[0].nodeName) {
+                case 'SELECT':
+                    $ctrl[0].DataView_SetData = this.Set_IntegerArrayUsingVal;
+                    if (getset)
+                        $ctrl[0].DataView_GetData = this.Get_IntegerArrayUsingVal;
+                    break;
+                default:
+                    throw "invalid nodeName '" + $ctrl[0].nodeName + "' for data type integer-array on control id '" + $ctrl[0].id + "'";
+            }
+            break;
 
         case "date":
             switch ($ctrl[0].nodeName) {
@@ -437,6 +451,10 @@ ZpmDataView.prototype.Set_IntegerUsingText = function (value) {
     $(this).text((value == 0) ? "" : value.toString());
 };
 
+ZpmDataView.prototype.Set_IntegerArrayUsingVal = function (value) {
+    $(this).val(value).trigger('chosen:updated');
+};
+
 ZpmDataView.prototype.Set_NumberUsingVal = function (value) {
     $(this).val(zpm.FormatNumber(value, this.DataDecimals));
 };
@@ -482,6 +500,13 @@ ZpmDataView.prototype.Get_IntegerUsingText = function (onBlur) {
     if (!zpm.IsNumeric(value))
         throw { name: INVALID_VALUE, message: "Invalid numeric value" };
     return zpm.GetInteger(value);
+};
+
+ZpmDataView.prototype.Get_IntegerArrayUsingVal = function (onBlur) {
+    var array = $(this).val();
+    if (array == null)
+        return [];
+    return zpm.StringArrayToInt(array);
 };
 
 ZpmDataView.prototype.Get_NumberUsingVal = function (onBlur) {
@@ -558,10 +583,15 @@ ZpmDataView.prototype.PostAdd = function (model) {
     this.NewModel = model;  // not new
     this.BindDataToFields(model, null);
     this.DataFields.$KeyFields.prop('disabled', false);
+    this.PostAddExtend(model);
     this.ActivateButtons(false, true, false);
     this.$DataPanel.show();
     this.$FocusOnAdd.focus();
 };
+
+ZpmDataView.prototype.PostAddExtend = function (model) {
+    // hook for customization. Display additional data after displaying model data.
+}
 
 ZpmDataView.prototype.DataType = function ($ctrl) {
     var dataType = $ctrl.attr('data-type');
@@ -745,16 +775,7 @@ ZpmDataView.prototype.Delete = function (deleteMethodName) {
             } else if (result != "") {
                 ActiveDataView.Alert(result);
             } else {
-                $tr = ActiveDataView.$SelectedRow();
-                $trPrev = $tr.prev();
-                $trNext = $tr.next();
-                $tr.remove();
-                if ($trNext.length == 1)
-                    ActiveDataView.SelectRow($trNext, false);
-                else if ($trPrev.length == 1)
-                    ActiveDataView.SelectRow($trPrev, false); // use previous if no next.
-                else
-                    ActiveDataView.$DataPanel.hide(); // nothing to show
+                ActiveDataView.PostDelete(result);
             }
         },
         error: function (err) {
@@ -763,18 +784,32 @@ ZpmDataView.prototype.Delete = function (deleteMethodName) {
     });
 };
 
+ZpmDataView.prototype.PostDelete = function (result) {
+    $tr = this.$SelectedRow();
+    $trPrev = $tr.prev();
+    $trNext = $tr.next();
+    $tr.remove();
+    if ($trNext.length == 1)
+        this.SelectRow($trNext, false);
+    else if ($trPrev.length == 1)
+        this.SelectRow($trPrev, false); // use previous if no next.
+    else
+        this.$DataPanel.hide(); // nothing to show
+};
+
 ZpmDataView.prototype.Message = function (message) {
     this.$DataPanelMessage.text(message);
 };
 
 ZpmDataView.prototype.OnFieldChanged = function (e, onBlur) {
     var $fld = $(e.currentTarget || e.target);
-    var $highlightFld = ($fld[0].nodeName == 'INPUT' && $fld.prop('type') == 'checkbox') ? $fld.parent() : $fld; // can't change background on checkbox, use parent
+    var $highlightFld = ($fld.hasClass('chosen-select') || $fld.is(":checkbox")) ? $fld.parent() : $fld; // can't change background on checkbox, use parent
+
     var changedCount = this.$ViewId.find(".zpm-field-changed").length;
     var initialValue = $fld.attr("data-initial-value");
     var hasFieldChanged = $highlightFld.hasClass("zpm-field-changed");
     try {
-        if (initialValue == ($fld[0].DataView_GetData(onBlur) || "").toString()) {
+        if (initialValue == zpm.BlankIfNull($fld[0].DataView_GetData(onBlur)).toString()) {
             if (hasFieldChanged) {
                 $highlightFld.removeClass('zpm-field-changed');
                 if (changedCount == 1) // would be zero now, no changes
